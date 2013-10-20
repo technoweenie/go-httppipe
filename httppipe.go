@@ -1,42 +1,42 @@
 package httppipe
 
 import (
-  "net/http"
+	"net/http"
 )
 
 type Pipe struct {
-  Handlers []http.Handler
+	Handlers []http.Handler
 }
 
 func New(handlers []http.Handler) *Pipe {
-  return &Pipe{handlers}
+	return &Pipe{handlers}
 }
 
 func (p *Pipe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-  pipewriter := &PipeWriter{false, w}
-  for _, handler := range p.Handlers {
-    handler.ServeHTTP(pipewriter, r)
-    if pipewriter.written {
-      return
-    }
-  }
+	pipewriter := &PipeWriter{false, w}
+	for _, handler := range p.Handlers {
+		handler.ServeHTTP(pipewriter, r)
+		if pipewriter.written {
+			return
+		}
+	}
 
-  if !pipewriter.written {
-    p.serveHTTP(w, r)
-  }
+	if !pipewriter.written {
+		p.serveHTTP(w, r)
+	}
 }
 
 func (p *Pipe) serveHTTP(w http.ResponseWriter, r *http.Request) {
-  w.WriteHeader(http.StatusInternalServerError)
-  w.Write([]byte(":("))
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(":("))
 }
 
 type PipeWriter struct {
-  written bool
-  http.ResponseWriter
+	written bool
+	http.ResponseWriter
 }
 
 func (w *PipeWriter) WriteHeader(status int) {
-  w.written = true
-  w.ResponseWriter.WriteHeader(status)
+	w.written = true
+	w.ResponseWriter.WriteHeader(status)
 }
