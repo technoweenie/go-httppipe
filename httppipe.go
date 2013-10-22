@@ -6,10 +6,13 @@ import (
 
 type Pipe struct {
 	Handlers []http.Handler
+	Fallback http.HandlerFunc
 }
 
 func New(handlers []http.Handler) *Pipe {
-	return &Pipe{handlers}
+	p := &Pipe{Handlers: handlers}
+	p.Fallback = p.serveHTTP
+	return p
 }
 
 func (p *Pipe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +29,7 @@ func (p *Pipe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !pipewriter.written {
-		p.serveHTTP(w, r)
+		p.Fallback(w, r)
 	}
 }
 

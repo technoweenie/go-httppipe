@@ -74,6 +74,27 @@ func TestSkipNilPipe(t *testing.T) {
 	}
 }
 
+func TestFallback(t *testing.T) {
+	setup := Setup(t)
+	defer setup.Teardown()
+
+	p := New([]http.Handler{})
+	p.Fallback = func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("boo"))
+	}
+
+	res := setup.Call(p)
+	if res.StatusCode != 500 {
+		t.Errorf("Bad response status: %d", res.StatusCode)
+	}
+
+	by, _ := ioutil.ReadAll(res.Body)
+	if string(by) != "boo" {
+		t.Errorf("Bad response body: %s", string(by))
+	}
+}
+
 type PipeSetup struct {
 	Server *httptest.Server
 	Mux    *http.ServeMux
