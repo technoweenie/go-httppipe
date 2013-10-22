@@ -19,6 +19,10 @@ func New(handlers []http.Handler) *Pipe {
 	return p
 }
 
+func (p *Pipe) SetFallback(handler http.Handler) {
+	p.Fallback = handler.ServeHTTP
+}
+
 // ServeHTTP satisfies the http.Handler interface.
 func (p *Pipe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	pipewriter := &pipeWriter{false, w}
