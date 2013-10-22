@@ -13,7 +13,7 @@ type Pipe struct {
 }
 
 // New initializes a Pipe with the given handlers.
-func New(handlers []http.Handler) *Pipe {
+func New(handlers... http.Handler) *Pipe {
 	p := &Pipe{Handlers: handlers}
 	p.Fallback = http.NotFound
 	return p

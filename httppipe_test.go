@@ -11,7 +11,7 @@ func TestPipe(t *testing.T) {
 	setup := Setup(t)
 	defer setup.Teardown()
 
-	p := New([]http.Handler{
+	p := New(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("A", "1")
 		}),
@@ -19,7 +19,7 @@ func TestPipe(t *testing.T) {
 			w.Header().Set("B", "2")
 		}),
 		setup.Handler(),
-	})
+	)
 
 	res := setup.Call(p)
 	if res.StatusCode != 200 {
@@ -44,7 +44,7 @@ func TestSkipNilPipe(t *testing.T) {
 	setup := Setup(t)
 	defer setup.Teardown()
 
-	p := New([]http.Handler{
+	p := New(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("A", "1")
 		}),
@@ -53,7 +53,7 @@ func TestSkipNilPipe(t *testing.T) {
 			w.Header().Set("B", "2")
 		}),
 		setup.Handler(),
-	})
+	)
 
 	res := setup.Call(p)
 	if res.StatusCode != 200 {
@@ -78,7 +78,7 @@ func TestFallback(t *testing.T) {
 	setup := Setup(t)
 	defer setup.Teardown()
 
-	p := New([]http.Handler{})
+	p := New()
 	p.Fallback = func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("boo"))
