@@ -40,6 +40,40 @@ func TestPipe(t *testing.T) {
 	}
 }
 
+func TestSkipNilPipe(t *testing.T) {
+	setup := Setup(t)
+	defer setup.Teardown()
+
+	p := New([]http.Handler{
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("A", "1")
+		}),
+		nil,
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("B", "2")
+		}),
+		setup.Handler(),
+	})
+
+	res := setup.Call(p)
+	if res.StatusCode != 200 {
+		t.Errorf("Bad response status: %d", res.StatusCode)
+	}
+
+	if v := res.Header.Get("A"); v != "1" {
+		t.Errorf("Bad A value: %s", v)
+	}
+
+	if v := res.Header.Get("B"); v != "2" {
+		t.Errorf("Bad B value: %s", v)
+	}
+
+	by, _ := ioutil.ReadAll(res.Body)
+	if string(by) != "OK" {
+		t.Errorf("Bad response body: %s", string(by))
+	}
+}
+
 type PipeSetup struct {
 	Server *httptest.Server
 	Mux    *http.ServeMux

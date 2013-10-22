@@ -15,6 +15,10 @@ func New(handlers []http.Handler) *Pipe {
 func (p *Pipe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	pipewriter := &PipeWriter{false, w}
 	for _, handler := range p.Handlers {
+		if handler == nil {
+			continue
+		}
+
 		handler.ServeHTTP(pipewriter, r)
 		if pipewriter.written {
 			return
