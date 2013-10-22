@@ -15,7 +15,7 @@ type Pipe struct {
 // New initializes a Pipe with the given handlers.
 func New(handlers []http.Handler) *Pipe {
 	p := &Pipe{Handlers: handlers}
-	p.Fallback = p.serveHTTP
+	p.Fallback = http.NotFound
 	return p
 }
 
@@ -40,11 +40,6 @@ func (p *Pipe) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if !pipewriter.written {
 		p.Fallback(w, r)
 	}
-}
-
-func (p *Pipe) serveHTTP(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusInternalServerError)
-	w.Write([]byte(":("))
 }
 
 type pipeWriter struct {
