@@ -79,10 +79,10 @@ func TestFallback(t *testing.T) {
 	defer setup.Teardown()
 
 	p := New()
-	p.Fallback = func(w http.ResponseWriter, r *http.Request) {
+	p.SetFallback(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("boo"))
-	}
+	}))
 
 	res := setup.Call(p)
 	if res.StatusCode != 500 {
